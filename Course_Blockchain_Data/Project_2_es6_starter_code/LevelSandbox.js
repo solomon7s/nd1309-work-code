@@ -12,29 +12,51 @@ class LevelSandbox {
     }
 
     // Get data from levelDB with key (Promise)
-    getLevelDBData(key){
-        let self = this;
-        return new Promise(function(resolve, reject) {
-            // Add your code here, remember in Promises you need to resolve() or reject()
-        });
+    async getLevelDBData(key){
+        try {
+            let value = await this.db.get(key);
+            return JSON.parse(value);
+        } catch (err) {
+            console.log('Not found!', err);
+        }
     }
 
     // Add data to levelDB with key and value (Promise)
-    addLevelDBData(key, value) {
-        let self = this;
-        return new Promise(function(resolve, reject) {
-            // Add your code here, remember in Promises you need to resolve() or reject() 
-        });
+    async addLevelDBData(key, value) {
+        try {
+            return await this.db.put(key, JSON.stringify(value));
+        } catch (err) {
+            console.log('Block ' + key + ' submission failed', err);
+        }
     }
 
     // Method that return the height
     getBlocksCount() {
         let self = this;
-        return new Promise(function(resolve, reject){
-            // Add your code here, remember in Promises you need to resolve() or reject()
-        });
+        return new Promise((resolve, reject) => {
+            let i = 0;
+            this.db.createReadStream().on('data', function (data) {
+                i++;
+            }).on('error', function (err) {
+                reject(err)
+            }).on('close', function () {
+                resolve(i);
+            });
+        }); 
     }
-        
+    
+    getBlocks() {
+        return new Promise((resolve, reject) => {
+            let blockList = [];
+            this.db.createReadStream().on('data', function (data) {
+                blockList.push(JSON.parse(data));
+            }).on('error', function (err) {
+                reject(err)
+            }).on('close', function () {
+                resolve(blockList);
+            });
+        }); 
+    }
 
 }
 

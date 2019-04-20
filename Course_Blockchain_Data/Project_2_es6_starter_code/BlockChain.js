@@ -18,32 +18,70 @@ class Blockchain {
     // you will need to set this up statically or instead you can verify if the height !== 0 then you
     // will not create the genesis block
     generateGenesisBlock(){
-        // Add your code here
+        let block =  new Block.Block('This is Solomon GenesisBlock #0')
+        this.addBlock(block);
     }
 
     // Get block height, it is a helper method that return the height of the blockchain
     getBlockHeight() {
-        // Add your code here
+        return this.bd.getBlocksCount();
     }
 
     // Add new block
-    addBlock(block) {
-        // Add your code here
+    async addBlock(block) {
+        block.height = await this.getBlockHeight();
+        if (block.height > 0) {
+            let previousBlock  = await this.bd.getLevelDBData(block.height -1 );
+            block.previoushash = previousBlock.hash;
+            
+        }
+        block.time = new Date().getTime().toString().slice(0,-3);
+        block.hash = this.hashBlock(block);
+        console.log('block data', block);
+        return this.bd.addLevelDBData(block.height, block);
     }
 
     // Get Block By Height
     getBlock(height) {
-        // Add your code here
+        return this.bd.getLevelDBData(height);
     }
 
     // Validate if Block is being tampered by Block Height
-    validateBlock(height) {
-        // Add your code here
+    async validateBlock(height) {
+        let block = this.bd.getBlock(height);
+        return block.hash === this.hashBlock(block);
+        
     }
 
     // Validate Blockchain
-    validateChain() {
-        // Add your code here
+    async validateChain() {
+        let list = await this.bd.getBlocks();
+        let errList = [];
+        let genesisBlock = list[0];
+        if ( block.hash !== this.hashBlock() ) {
+            errList.push(`invalid integrety for Genesis Block`);
+        }
+        for( let i = 1, {length} = list; i < length; i++) {
+            let block = list[i];
+            if ( block.hash !== this.hashBlock() ) {
+                errList.push(`invalid integrety for block #${i}`);
+            } else {
+                let previousBlock = list[i-1];
+                if(block.previoushash !== previousBlock.hash) {
+                    errList.push(`invalid chain link for block #${i}`);
+                }
+            }
+        }
+        if (errList.length > 0 ) {
+            console.log('Block errors = ' + errorLog.length);
+            console.log('Blocks: '+errorLog);
+            return false;
+        }
+        return true;
+    }
+
+    hashBlock( Block ) {
+        return SHA256(JSON.stringify(block)).toString()
     }
 
     // Utility Method to Tamper a Block for Test Validation

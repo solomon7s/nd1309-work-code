@@ -91,7 +91,7 @@ class Blockchain{
       if (errorLog.length>0) {
         console.log('Block errors = ' + errorLog.length);
         console.log('Blocks: '+errorLog);
-      } else {
+     } else {
         console.log('No errors detected');
       }
     }
