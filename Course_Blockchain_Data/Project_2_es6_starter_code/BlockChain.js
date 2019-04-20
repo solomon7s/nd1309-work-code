@@ -80,7 +80,7 @@ class Blockchain {
         return true;
     }
 
-    hashBlock( Block ) {
+    hashBlock( block ) {
         return SHA256(JSON.stringify(block)).toString()
     }
 
