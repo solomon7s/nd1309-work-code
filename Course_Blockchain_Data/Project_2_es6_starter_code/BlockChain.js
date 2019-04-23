@@ -17,9 +17,12 @@ class Blockchain {
     // You have to options, because the method will always execute when you create your blockchain
     // you will need to set this up statically or instead you can verify if the height !== 0 then you
     // will not create the genesis block
-    generateGenesisBlock(){
-        let block =  new Block.Block('This is Solomon GenesisBlock #0')
-        this.addBlock(block);
+    async generateGenesisBlock(){
+        let height = await this.getBlockHeight();
+        if ( !height) {
+            let block =  new Block.Block('This is Solomon GenesisBlock #0')
+            this.addBlock(block);
+        }
     }
 
     // Get block height, it is a helper method that return the height of the blockchain
@@ -38,7 +41,13 @@ class Blockchain {
         block.time = new Date().getTime().toString().slice(0,-3);
         block.hash = this.hashBlock(block);
         console.log('block data', block);
-        return this.bd.addLevelDBData(block.height, block);
+        this.bd.addLevelDBData(block.height, block);
+        return block;
+    }
+
+    addDataBlock(data) {
+        let block =  new Block.Block(data)
+        return this.addBlock(block);
     }
 
     // Get Block By Height
